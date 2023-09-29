@@ -73,3 +73,5 @@ Bun.serve({
   },
   port: Number(process.env.PORT),
 })
+
+console.log("Server is running")
