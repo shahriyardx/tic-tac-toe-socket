@@ -1,6 +1,7 @@
 import cuid from "cuid"
 import { games } from "./game"
-import { Symbol } from "./types"
+import { OutgoingMessage, Symbol } from "./types"
+import { ServerWebSocket } from "bun"
 
 const create_board = () => {
   const array = new Array(9)
@@ -9,16 +10,20 @@ const create_board = () => {
   return array
 }
 
-export const create_game = () => {
+export const create_game = (ws: ServerWebSocket<unknown>) => {
   const board = create_board()
   const gid = cuid()
 
   games[gid] = {
     id: gid,
+    created_at: Date.now(),
     board,
     players: [],
   }
 
+  const games_payload = JSON.stringify({ type: "games", data: games })
+  ws.send(games_payload)
+  ws.publish("lobby", games_payload)
   return gid
 }
 
@@ -30,9 +35,9 @@ export const join_game = (gid: string, player_id: string) => {
   }
 
   const playerExists = players.find((player) => player.id == player_id)
-  if (playerExists) return { success: true, data: playerExists }
+  if (playerExists) return playerExists
 
-  if (players.length >= 2) return { success: false, data: null }
+  if (players.length >= 2) return null
 
   const newPlayer = {
     id: player_id,
@@ -44,8 +49,5 @@ export const join_game = (gid: string, player_id: string) => {
 
   games[gid].players.push(newPlayer)
 
-  return {
-    success: true,
-    data: newPlayer,
-  }
+  return newPlayer
 }

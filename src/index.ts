@@ -1,8 +1,8 @@
 import { type ServerWebSocket } from "bun"
 
-import { createToken, getUserFromToken } from "./auth"
+import { getUserFromToken } from "./auth"
 import { process_message, upgrade_connection } from "./handler"
-import { IncomingMessage, JsonPayload, OutgoingMessage, type SocketData } from "./types"
+import { JsonPayload, OutgoingMessage, type SocketData } from "./types"
 
 Bun.serve({
   fetch(req, server) {
@@ -10,9 +10,10 @@ Bun.serve({
   },
   websocket: {
     message(ws, message) {
-      return process_message(ws, message)
+      process_message(ws, message)
     },
     open(ws) {
+      ws.subscribe("lobby")
       const data = ws.data as SocketData
       const user: JsonPayload | null = getUserFromToken(data.authToken)
 
@@ -24,11 +25,11 @@ Bun.serve({
             token: data.authToken,
           },
         }
-        ws.send(JSON.stringify(message))
+        ws.publish("lobby", JSON.stringify(message))
       }
     },
     close(ws, code, message) {},
     drain(ws) {},
   },
-  port: 3000,
+  port: Number(process.env.PORT),
 })

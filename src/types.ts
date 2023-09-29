@@ -9,6 +9,7 @@ export type Player = {
 
 export type Board = {
     id: string
+    created_at: number
     players: Array<Player>
     board: Array<number>
     current_turn?: string
@@ -27,12 +28,12 @@ export interface JsonPayload extends JwtPayload {
 }
 
 export type OutgoingMessage = {
-    success: true,
-    type: string
-    data: object
+    success: boolean,
+    type?: string
+    data?: object | null
 }
 
 export type IncomingMessage = {
-    type: string
+    type: "join_game" | "create_game" | "turn"
     data: object
 }
