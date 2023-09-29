@@ -6,9 +6,9 @@ COPY package*.json bun.lockb ./
 RUN bun install
 COPY . .
 
-EXPOSE 3000
+# EXPOSE 3000
 
 ENV NODE_ENV production
-ENV PORT 3000
+ENV PORT 3068
 
 CMD [ "bun", "start" ]
