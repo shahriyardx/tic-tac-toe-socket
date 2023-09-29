@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import cuid from "cuid"
 import { JsonPayload } from "./types"
 
