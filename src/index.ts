@@ -3,7 +3,9 @@ import { type ServerWebSocket } from "bun"
 import { getUserFromToken } from "./auth"
 import { process_message, upgrade_connection } from "./handler"
 import { JsonPayload, OutgoingMessage, type SocketData } from "./types"
-import { notify_games } from "./game"
+import { games, notify_games } from "./game"
+
+const clients: { [key: string]: ServerWebSocket<unknown> } = {}
 
 Bun.serve({
   fetch(req, server) {
@@ -17,22 +19,53 @@ Bun.serve({
       ws.subscribe("lobby")
       const data = ws.data as SocketData
       const user: JsonPayload | null = getUserFromToken(data.authToken)
-
       if (user) {
+        clients[user.id] = ws
+        console.log(clients)
         const message: OutgoingMessage = {
           success: true,
           type: "connection",
           data: {
             token: data.authToken,
-            user_id: user.id
+            user_id: user.id,
           },
         }
         ws.send(JSON.stringify(message))
         notify_games(ws)
       }
     },
-    close(ws, code, message) {},
-    drain(ws) {},
+    close(ws, code, message) {
+      const data = ws.data as SocketData
+      const user: JsonPayload | null = getUserFromToken(data.authToken)
+      
+      if (!user) return
+      delete clients[user.id]
+      console.log(clients)
+      let wasPlaying = null
+      for (let gameid in games) {
+        const game = games[gameid]
+        const playingThis = game.players.find((p) => p.id == user.id)
+
+        if (playingThis) {
+          wasPlaying = game
+          delete games[gameid]
+        }
+      }
+
+      if (wasPlaying) {
+        if (wasPlaying.players.length == 2) {
+          const anotherPlayer = wasPlaying.players.find(
+            (p) => p.id !== user.id
+          )
+          if (anotherPlayer) {
+            const clientWs = clients[anotherPlayer.id]
+            clientWs.send(
+              JSON.stringify({ success: true, type: "oponent_disconnected" })
+            )
+          }
+        }
+      }
+    },
   },
   port: Number(process.env.PORT),
 })

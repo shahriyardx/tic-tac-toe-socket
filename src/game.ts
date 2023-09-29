@@ -125,6 +125,7 @@ export const move = (
   const moveLeft = game.board.filter(item => item == "")
 
   if (winner || moveLeft.length <= 0) {
+    delete games[message.game_id]
     const winnerPlayer = game.players.find(p => p.symbol == winner)
 
     return ws_send({

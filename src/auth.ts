@@ -4,8 +4,8 @@ import { JsonPayload } from "./types"
 
 const secretKey = Buffer.from(process.env.JWT_SECRET as string)
 
-export const createToken = () => {
-  const uid = cuid()
+export const createToken = (prevId: string | null ) => {
+  const uid = prevId || cuid()
 
   const payload = {
     id: uid,

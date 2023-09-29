@@ -4,8 +4,11 @@ import { createToken } from "./auth"
 import { create, join, move, notify_games } from "./game"
 
 export const upgrade_connection = (req: Request, server: Server) => {
+  const url = new URL(req.url)
+  const prevId = url.searchParams.get("prevId")
+
   const socketData: SocketData = {
-    authToken: createToken(),
+    authToken: createToken(prevId),
   }
   const upgraded = server.upgrade(req, {
     data: socketData,
