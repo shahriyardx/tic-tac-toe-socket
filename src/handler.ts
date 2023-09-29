@@ -23,7 +23,7 @@ export const upgrade_connection = (req: Request, server: Server) => {
 
 export const process_message = (
   ws: ServerWebSocket<unknown>,
-  content: string | Buffer
+  content: string
 ) => {
   const message: IncomingMessage = JSON.parse(content as string)
   const actions: { [key: string]: Function } = {
