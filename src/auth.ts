@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import cuid from "cuid"
 import { JsonPayload } from "./types"
 
-const secretKey = process.env.JWT_SECRET as string
+const secretKey = Buffer.from(process.env.JWT_SECRET as string)
 
 export const createToken = (prevId: string | null ) => {
   const uid = prevId || cuid()

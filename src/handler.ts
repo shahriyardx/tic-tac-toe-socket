@@ -26,6 +26,8 @@ export const process_message = (
   content: string
 ) => {
   const message: IncomingMessage = JSON.parse(content as string)
+
+  console.log(message.type)
   const actions: { [key: string]: Function } = {
     create_game: create,
     join_game: join,
