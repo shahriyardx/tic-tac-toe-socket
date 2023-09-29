@@ -1,8 +1,7 @@
 import { type ServerWebSocket, type Server } from "bun"
 import { type IncomingMessage, type SocketData } from "./types"
 import { createToken } from "./auth"
-import { create_game } from "./utils"
-import { create } from "./game"
+import { create, join, move } from "./game"
 
 export const upgrade_connection = (req: Request, server: Server) => {
   const socketData: SocketData = {
@@ -26,7 +25,9 @@ export const process_message = (
   const message: IncomingMessage = JSON.parse(content as string)
   const actions: { [key: string]: Function } = {
     create_game: create,
+    join_game: join,
+    move: move,
   }
 
-  actions[message.type](ws)
+  actions[message.type](ws, message)
 }

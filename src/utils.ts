@@ -5,7 +5,7 @@ import { ServerWebSocket } from "bun"
 
 const create_board = () => {
   const array = new Array(9)
-  array.fill(0)
+  array.fill("")
 
   return array
 }
@@ -17,6 +17,7 @@ export const create_game = (ws: ServerWebSocket<unknown>) => {
   games[gid] = {
     id: gid,
     created_at: Date.now(),
+    started: false,
     board,
     players: [],
   }
@@ -47,5 +48,26 @@ export const join_game = (gid: string, player_id: string) => {
   }
   games[gid].players.push(newPlayer)
   
-  return {success: true, data: newPlayer}
+  if (games[gid].players.length == 2) {
+    games[gid].started = true
+  }
+  
+  return {success: true, data: newPlayer, started: games[gid].started}
+}
+
+export const checkTicTacToeWinner = (board: Array<string>) => {
+  const winningCombinations = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6]             // Diagonals
+  ];
+
+  for (const combination of winningCombinations) {
+    const [a, b, c] = combination;
+    if (board[a] !== "" && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+
+  return null;
 }

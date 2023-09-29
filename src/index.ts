@@ -3,6 +3,7 @@ import { type ServerWebSocket } from "bun"
 import { getUserFromToken } from "./auth"
 import { process_message, upgrade_connection } from "./handler"
 import { JsonPayload, OutgoingMessage, type SocketData } from "./types"
+import { notify_games } from "./game"
 
 Bun.serve({
   fetch(req, server) {
@@ -23,9 +24,11 @@ Bun.serve({
           type: "connection",
           data: {
             token: data.authToken,
+            user_id: user.id
           },
         }
-        ws.publish("lobby", JSON.stringify(message))
+        ws.send(JSON.stringify(message))
+        notify_games(ws)
       }
     },
     close(ws, code, message) {},

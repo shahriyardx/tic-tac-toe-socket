@@ -10,8 +10,9 @@ export type Player = {
 export type Board = {
     id: string
     created_at: number
+    started: boolean
     players: Array<Player>
-    board: Array<number>
+    board: Array<string>
     current_turn?: string
 }
 
