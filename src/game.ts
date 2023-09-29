@@ -2,8 +2,19 @@ import { getUserFromToken } from "./auth"
 import { type Boards, type SocketData } from "./types"
 import { type ServerWebSocket } from "bun"
 import { create_game, join_game } from "./utils"
+import { ws_send } from "./ws"
 
 export const games: Boards = {}
+
+export const notify_games = (ws: ServerWebSocket<unknown>) => {
+  ws_send({
+    success: true,
+    type: "games",
+    data: Object.values(games),
+    ws: ws,
+    publish: "lobby",
+  })
+}
 
 export const create = (ws: ServerWebSocket<unknown>) => {
   const data: SocketData = ws.data as SocketData
@@ -18,17 +29,23 @@ export const create = (ws: ServerWebSocket<unknown>) => {
         ...game_data,
         game_id: game,
       }
-      const payload = {
+
+      ws_send({
         success: true,
         type: "game_joined",
         data: extended_game_data,
-      }
-      
-      return ws.publish(game, JSON.stringify(payload))
+        ws: ws,
+        publish: game,
+      })
     }
   }
 
-  ws.send(JSON.stringify({ success: false, data: null }))
+  ws_send({
+    success: false,
+    type: "game_joined",
+    data: null,
+    ws: ws,
+  })
 }
 
 export const join = (ws: ServerWebSocket<unknown>) => {
