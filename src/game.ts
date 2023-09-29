@@ -24,16 +24,28 @@ export const create = (ws: ServerWebSocket<unknown>) => {
     const game = create_game(ws)
     const game_data = join_game(game, player.id)
 
-    if (game_data) {
+    notify_games(ws)
+    
+    if (game_data.success) {
       const extended_game_data = {
         ...game_data,
         game_id: game,
       }
 
+      ws.subscribe(game)
       ws_send({
         success: true,
         type: "game_joined",
         data: extended_game_data,
+        ws: ws,
+        publish: game,
+      })
+    } else {
+      ws_send({
+        success: false,
+        type: "error",
+        data: null,
+        error_message: game_data.data as string,
         ws: ws,
         publish: game,
       })
@@ -43,6 +55,7 @@ export const create = (ws: ServerWebSocket<unknown>) => {
   ws_send({
     success: false,
     type: "game_joined",
+    error_message: "unable to create game",
     data: null,
     ws: ws,
   })

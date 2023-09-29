@@ -33,9 +33,10 @@ export const join_game = (gid: string, player_id: string) => {
   }
 
   const playerExists = players.find((player) => player.id == player_id)
-  if (playerExists) return playerExists
+  if (playerExists) return {success: true, data: playerExists}
 
-  if (players.length >= 2) return null
+  if (players.length >= 2)
+    return { success: false, data: "maximum players reached for this game" }
 
   const newPlayer = {
     id: player_id,
@@ -44,8 +45,7 @@ export const join_game = (gid: string, player_id: string) => {
   if (players.length == 0) {
     games[gid].current_turn = player_id
   }
-
   games[gid].players.push(newPlayer)
-
-  return newPlayer
+  
+  return {success: true, data: newPlayer}
 }

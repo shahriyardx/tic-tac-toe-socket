@@ -3,6 +3,7 @@ import { ServerWebSocket } from "bun"
 export const ws_send = ({
   ws,
   success,
+  error_message,
   type,
   data,
   send = true,
@@ -10,6 +11,7 @@ export const ws_send = ({
 }: {
   ws: ServerWebSocket<unknown>
   success: boolean
+  error_message?: string
   type: string
   data: object | string | null
   send?: boolean
@@ -19,6 +21,7 @@ export const ws_send = ({
     success,
     type,
     data,
+    error_message,
   }
 
   if (send) {
