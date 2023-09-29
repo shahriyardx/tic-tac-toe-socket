@@ -6,3 +6,4 @@ services:
     container_name: ttc-socket
     ports:
       - 3010:3000
+

@@ -13,7 +13,7 @@ Bun.serve({
   },
   websocket: {
     message(ws, message) {
-      process_message(ws, message)
+      process_message(ws, JSON.stringify(message))
     },
     open(ws) {
       ws.subscribe("lobby")
