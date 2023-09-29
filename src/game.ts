@@ -6,12 +6,11 @@ import { ws_send } from "./ws"
 
 export const games: Boards = {}
 
-export const notify_games = (ws: ServerWebSocket<unknown>) => {
-  console.log(games)
+export const notify_games = (ws: ServerWebSocket<unknown>, _message: object = {}) => {
   ws_send({
     success: true,
     type: "games",
-    data: Object.values(games),
+    data: Object.values(games).filter(item => item.players.length < 2),
     ws: ws,
     publish: "lobby",
   })
@@ -83,7 +82,6 @@ export const join = (
 
     if (game_data.started) {
       setTimeout(() => {
-        console.log("Sending")
         ws_send({
           success: true,
           type: "game_started",

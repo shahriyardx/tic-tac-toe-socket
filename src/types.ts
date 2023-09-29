@@ -35,6 +35,6 @@ export type OutgoingMessage = {
 }
 
 export type IncomingMessage = {
-    type: "join_game" | "create_game" | "turn"
+    type: "join_game" | "create_game" | "turn" | "load_games"
     data: object
 }
