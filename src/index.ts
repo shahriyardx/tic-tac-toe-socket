@@ -21,7 +21,6 @@ Bun.serve({
       const user: JsonPayload | null = getUserFromToken(data.authToken)
       if (user) {
         clients[user.id] = ws
-        console.log(clients)
         const message: OutgoingMessage = {
           success: true,
           type: "connection",
@@ -40,7 +39,7 @@ Bun.serve({
       
       if (!user) return
       delete clients[user.id]
-      console.log(clients)
+
       let wasPlaying = null
       for (let gameid in games) {
         const game = games[gameid]
@@ -49,6 +48,11 @@ Bun.serve({
         if (playingThis) {
           wasPlaying = game
           delete games[gameid]
+          for (let client of Object.values(clients)) {
+            if (client.isSubscribed("lobby")) {
+              notify_games(client)
+            } 
+          }
         }
       }
 
