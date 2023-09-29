@@ -133,7 +133,7 @@ export const move = (
       type: "game_finished",
       data: {
         board: game.board,
-        winner: winnerPlayer?.id,
+        winner: winnerPlayer ? winnerPlayer.id : null,
       },
       ws: ws,
       publish: message.game_id,
