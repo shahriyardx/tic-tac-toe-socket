@@ -1,7 +1,7 @@
 import { type ServerWebSocket, type Server } from "bun"
 import { type IncomingMessage, type SocketData } from "./types"
 import { createToken } from "./auth"
-import { create, join, move, notify_games } from "./game"
+import { create, join, move, notify_lobby } from "./game"
 
 export const upgrade_connection = (req: Request, server: Server) => {
   const url = new URL(req.url)
@@ -32,7 +32,7 @@ export const process_message = (
     create_game: create,
     join_game: join,
     move: move,
-    load_games: notify_games,
+    lobby: notify_lobby,
   }
 
   actions[message.type](ws, message)

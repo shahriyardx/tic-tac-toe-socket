@@ -3,9 +3,9 @@ import { type ServerWebSocket } from "bun"
 import { getUserFromToken } from "./auth"
 import { process_message, upgrade_connection } from "./handler"
 import { JsonPayload, OutgoingMessage, type SocketData } from "./types"
-import { games, notify_games } from "./game"
+import { games, notify_lobby } from "./game"
 
-const clients: { [key: string]: ServerWebSocket<unknown> } = {}
+export const clients: { [key: string]: ServerWebSocket<unknown> } = {}
 
 Bun.serve({
   fetch(req, server) {
@@ -30,7 +30,7 @@ Bun.serve({
           },
         }
         ws.send(JSON.stringify(message))
-        notify_games(ws)
+        notify_lobby(ws)
       }
     },
     close(ws, code, message) {
@@ -50,7 +50,7 @@ Bun.serve({
           delete games[gameid]
           for (let client of Object.values(clients)) {
             if (client.isSubscribed("lobby")) {
-              notify_games(client)
+              notify_lobby(client)
             } 
           }
         }

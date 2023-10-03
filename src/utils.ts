@@ -1,6 +1,6 @@
 import cuid from "cuid"
-import { games, notify_games } from "./game"
-import { JsonPayload, Player, Symbol } from "./types"
+import { games, notify_lobby } from "./game"
+import { JsonPayload, Symbol } from "./types"
 import { ServerWebSocket } from "bun"
 
 const create_board = () => {
@@ -22,7 +22,7 @@ export const create_game = (ws: ServerWebSocket<unknown>) => {
     players: [],
   }
 
-  notify_games(ws)
+  notify_lobby(ws)
   return gid
 }
 

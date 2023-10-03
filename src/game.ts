@@ -3,17 +3,21 @@ import { type Boards, type SocketData } from "./types"
 import { type ServerWebSocket } from "bun"
 import { checkTicTacToeWinner, create_game, join_game } from "./utils"
 import { ws_send } from "./ws"
+import { clients } from "."
 
 export const games: Boards = {}
 
-export const notify_games = (
+export const notify_lobby = (
   ws: ServerWebSocket<unknown>,
   _message: object = {}
 ) => {
   ws_send({
     success: true,
-    type: "games",
-    data: Object.values(games).filter((item) => item.players.length < 2),
+    type: "lobby",
+    data: {
+      games: Object.values(games).filter((item) => item.players.length < 2),
+      online: Object.values(clients).length
+    },
     ws: ws,
     publish: "lobby",
   })
@@ -27,7 +31,7 @@ export const create = (ws: ServerWebSocket<unknown>, _message: object) => {
   const game_id = create_game(ws)
   const game_data = join_game(game_id, player)
 
-  notify_games(ws)
+  notify_lobby(ws)
 
   if (game_data.success) {
     ws.subscribe(game_id)
@@ -60,7 +64,7 @@ export const join = (
   if (!player) return
   const game_data = join_game(message.game_id, player)
 
-  notify_games(ws)
+  notify_lobby(ws)
 
   if (game_data.success) {
     ws.subscribe(message.game_id)
