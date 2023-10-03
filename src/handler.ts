@@ -6,9 +6,10 @@ import { create, join, move, notify_games } from "./game"
 export const upgrade_connection = (req: Request, server: Server) => {
   const url = new URL(req.url)
   const prevId = url.searchParams.get("prevId")
+  const name = url.searchParams.get("name")
 
   const socketData: SocketData = {
-    authToken: createToken(prevId),
+    authToken: createToken(prevId, name),
   }
   const upgraded = server.upgrade(req, {
     data: socketData,
@@ -27,7 +28,6 @@ export const process_message = (
 ) => {
   const message: IncomingMessage = JSON.parse(content as string)
 
-  console.log(message.type)
   const actions: { [key: string]: Function } = {
     create_game: create,
     join_game: join,

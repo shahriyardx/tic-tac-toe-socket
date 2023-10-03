@@ -6,11 +6,14 @@ import { ws_send } from "./ws"
 
 export const games: Boards = {}
 
-export const notify_games = (ws: ServerWebSocket<unknown>, _message: object = {}) => {
+export const notify_games = (
+  ws: ServerWebSocket<unknown>,
+  _message: object = {}
+) => {
   ws_send({
     success: true,
     type: "games",
-    data: Object.values(games).filter(item => item.players.length < 2),
+    data: Object.values(games).filter((item) => item.players.length < 2),
     ws: ws,
     publish: "lobby",
   })
@@ -22,7 +25,7 @@ export const create = (ws: ServerWebSocket<unknown>, _message: object) => {
 
   if (!player) return
   const game_id = create_game(ws)
-  const game_data = join_game(game_id, player.id)
+  const game_data = join_game(game_id, player)
 
   notify_games(ws)
 
@@ -46,7 +49,7 @@ export const create = (ws: ServerWebSocket<unknown>, _message: object) => {
       success: false,
       type: "error",
       data: null,
-      error_message: game_data.data as string,
+      error_message: game_data.error_message as string,
       ws,
     })
   }
@@ -60,7 +63,8 @@ export const join = (
   const player = getUserFromToken(data.authToken)
 
   if (!player) return
-  const game_data = join_game(message.game_id, player.id)
+  const game_data = join_game(message.game_id, player)
+  console.log(game_data)
 
   notify_games(ws)
 
@@ -80,12 +84,13 @@ export const join = (
       publish: message.game_id,
     })
 
-    if (game_data.started) {
+    if (game_data.data.started) {
+      console.log("Yes")
       setTimeout(() => {
         ws_send({
           success: true,
           type: "game_started",
-          data: games[message.game_id],
+          data: extended_game_data,
           ws: ws,
           publish: message.game_id,
         })
@@ -99,14 +104,14 @@ export const join = (
     success: false,
     type: "error",
     data: null,
-    error_message: game_data.data as string,
+    error_message: game_data.error_message as string,
     ws: ws,
   })
 }
 
 export const move = (
   ws: ServerWebSocket<unknown>,
-  message: { game_id: string, index: number }
+  message: { game_id: string; index: number }
 ) => {
   const data = ws.data as SocketData
   const player = getUserFromToken(data.authToken)
@@ -114,19 +119,19 @@ export const move = (
 
   if (!player || !game) return
 
-  const canPlay = game.players.find(p => p.id == player.id)
+  const canPlay = game.players.find((p) => p.id == player.id)
   if (!canPlay || game.current_turn !== player.id) return
   if (game.board[message.index]) return
 
-  const nextTurn = game.players.find(p => p.id !== player.id)
+  const nextTurn = game.players.find((p) => p.id !== player.id)
   game.board[message.index] = canPlay.symbol
 
   const winner = checkTicTacToeWinner(game.board)
-  const moveLeft = game.board.filter(item => item == "")
+  const moveLeft = game.board.filter((item) => item == "")
 
   if (winner || moveLeft.length <= 0) {
     delete games[message.game_id]
-    const winnerPlayer = game.players.find(p => p.symbol == winner)
+    const winnerPlayer = game.players.find((p) => p.symbol == winner)
 
     return ws_send({
       success: true,

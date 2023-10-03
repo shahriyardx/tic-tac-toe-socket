@@ -4,6 +4,7 @@ export type Symbol = "X" | "O"
 
 export type Player = {
     id: string
+    name: string,
     symbol: Symbol
 }
 
@@ -26,6 +27,7 @@ export type SocketData = {
 
 export interface JsonPayload extends JwtPayload {
     id: string
+    name: string,
 }
 
 export type OutgoingMessage = {

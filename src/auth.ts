@@ -4,10 +4,11 @@ import { JsonPayload } from "./types"
 
 const secretKey = Buffer.from(process.env.JWT_SECRET as string)
 
-export const createToken = (prevId: string | null ) => {
+export const createToken = (prevId: string | null, name: string | null) => {
   const uid = prevId || cuid()
 
   const payload = {
+    name,
     id: uid,
   }
 
@@ -27,5 +28,5 @@ export const verifyToken = (token: string) => {
 }
 
 export const getUserFromToken = (token: string) => {
-    return verifyToken(token).data
+  return verifyToken(token).data
 }
