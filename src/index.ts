@@ -74,4 +74,4 @@ Bun.serve({
   port: Number(process.env.PORT),
 })
 
-console.log("Server is running")
+console.log("Server is running on port", process.env.PORT)

@@ -59,7 +59,6 @@ export const join = (
 
   if (!player) return
   const game_data = join_game(message.game_id, player)
-  console.log(game_data)
 
   notify_games(ws)
 
