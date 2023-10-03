@@ -32,15 +32,10 @@ export const create = (ws: ServerWebSocket<unknown>, _message: object) => {
   if (game_data.success) {
     ws.subscribe(game_id)
 
-    const extended_game_data = {
-      ...game_data,
-      game_id: game_id,
-    }
-
     return ws_send({
       success: true,
       type: "game_joined",
-      data: extended_game_data,
+      data: game_id,
       ws: ws,
       publish: game_id,
     })
@@ -71,26 +66,20 @@ export const join = (
   if (game_data.success) {
     ws.subscribe(message.game_id)
 
-    const extended_game_data = {
-      ...game_data,
-      game_id: message.game_id,
-    }
-
     ws_send({
       success: true,
       type: "game_joined",
-      data: extended_game_data,
+      data: game_data.data.id,
       ws: ws,
       publish: message.game_id,
     })
 
     if (game_data.data.started) {
-      console.log("Yes")
       setTimeout(() => {
         ws_send({
           success: true,
           type: "game_started",
-          data: extended_game_data,
+          data: game_data.data,
           ws: ws,
           publish: message.game_id,
         })
