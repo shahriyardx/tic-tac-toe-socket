@@ -124,8 +124,8 @@ export const move = (
   if (winner || moveLeft.length <= 0) {
     delete games[message.game_id]
     const winnerPlayer = game.players.find((p) => p.symbol == winner)
-
-    return ws_send({
+    
+    ws_send({
       success: true,
       type: "game_finished",
       data: {
@@ -135,6 +135,13 @@ export const move = (
       ws: ws,
       publish: message.game_id,
     })
+
+    ws.unsubscribe(game.id)
+    ws.subscribe("lobby")
+
+    notify_lobby(ws)
+
+    return
   }
   game.current_turn = nextTurn?.id
   games[message.game_id] = game
