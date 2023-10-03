@@ -7,6 +7,22 @@ import { clients } from "."
 
 export const games: Boards = {}
 
+export const chat = (ws: ServerWebSocket<unknown>, message: { data: string }) => {
+  const data = ws.data as SocketData
+  const player = getUserFromToken(data.authToken)
+
+  if (!player) return 
+  ws_send({
+    success: true,
+    type: "chat",
+    data: {
+      userId: player.id, userName: player.name,
+      content: message.data,
+    },
+    ws: ws,
+    publish: "lobby",
+  })
+}
 export const notify_lobby = (
   ws: ServerWebSocket<unknown>,
   _message: object = {}
@@ -16,7 +32,7 @@ export const notify_lobby = (
     type: "lobby",
     data: {
       games: Object.values(games).filter((item) => item.players.length < 2),
-      online: Object.values(clients).length
+      online: Object.values(clients).length,
     },
     ws: ws,
     publish: "lobby",
@@ -124,7 +140,7 @@ export const move = (
   if (winner || moveLeft.length <= 0) {
     delete games[message.game_id]
     const winnerPlayer = game.players.find((p) => p.symbol == winner)
-    
+
     ws_send({
       success: true,
       type: "game_finished",
